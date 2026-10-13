@@ -3,7 +3,30 @@
   --fg: #f4f4f5;
   --muted: #a1a1aa;
   --accent: #6ee7b7;
-  --max-width: 640px;
+  --max-width: 960px;
+
+  /* Liquid glass */
+  --grid: rgba(255, 255, 255, 0.08);
+  --blob-a: #10b981;
+  --blob-b: #6366f1;
+  --title-a: #22d3ee;
+  --title-b: #6366f1;
+  --title-c: #ec4899;
+  --tint: rgba(255, 255, 255, 0.02);
+  --edge: rgba(255, 255, 255, 0.14);
+  --shadow: rgba(0, 0, 0, 0.5);
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+
+  /* Control panel */
+  --panel-tint: rgba(255, 255, 255, 0.05);
+  --chip-bg: rgba(255, 255, 255, 0.07);
+  --chip-edge: rgba(255, 255, 255, 0.12);
+  --chip-highlight: rgba(255, 255, 255, 0.22);
+  --chip-on-bg: rgba(255, 255, 255, 0.92);
+  --chip-on-fg: #0f1115;
+  --track: rgba(255, 255, 255, 0.1);
+  --fill-a: #67e8f9;
+  --fill-b: #a78bfa;
 }
 
 * {
@@ -22,9 +45,47 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ---------- Backdrop: detail for the glass to refract ---------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.blob {
+  position: absolute;
+  width: 38vmax;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(56px);
+  opacity: 0.45;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+
+.blob.a { background: var(--blob-a); top: -14%; left: -10%; }
+.blob.b { background: var(--blob-b); bottom: -18%; right: -8%; animation-duration: 23s; animation-delay: -7s; }
+
+@keyframes drift {
+  to { transform: translate(10vw, 8vh) scale(1.15); }
 }
 
 .wrap {
+  position: relative;
+  z-index: 1;
   flex: 1;
   width: 100%;
   max-width: var(--max-width);
@@ -38,13 +99,318 @@ body {
 }
 
 .hero {
+  position: relative;
+  width: 100%;
+  height: clamp(320px, 60vh, 520px);
+  display: grid;
+  place-items: center;
   margin-bottom: 24px;
 }
 
 .name {
-  font-size: clamp(2rem, 6vw, 3rem);
-  margin: 0 0 8px;
-  letter-spacing: -0.02em;
+  margin: 0;
+  font-size: clamp(4rem, 16vw, 11rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  background: linear-gradient(100deg, var(--title-a), var(--title-b) 50%, var(--title-c));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  user-select: none;
+}
+
+/* ---------- Liquid glass (refraction set up by glass.js) ---------- */
+.glass {
+  position: relative;
+  background: var(--tint);
+  box-shadow:
+    0 18px 50px -12px var(--shadow),
+    inset 0 0 0 1px var(--edge);
+}
+
+/* Specular rim, generated per element from the bezel normals */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--spec, none) center / 100% 100% no-repeat;
+  opacity: var(--spec-opacity, 0.9);
+  pointer-events: none;
+}
+
+.lens {
+  --lens-size: calc(clamp(88px, 24vw, 210px) * var(--lens-scale, 1));
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--lens-size);
+  height: var(--lens-size);
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  box-shadow:
+    var(--lens-shadow, 0 18px 50px -12px var(--shadow)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 0 1px var(--edge);
+  /* border-radius stays instant: the refraction map is built from the final shape */
+  transition: scale 0.45s var(--spring), box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.lens[data-shape="squircle"] { border-radius: 30%; }
+.lens[data-shape="pill"] { width: calc(var(--lens-size) * 1.6); border-radius: 999px; }
+
+.lens.is-grabbed {
+  cursor: grabbing;
+  scale: 1.12;
+}
+
+/* ---------- Glass customisation panel ---------- */
+.panel {
+  width: min(640px, 100%);
+  margin: 0 0 48px;
+  padding: 24px;
+  border-radius: 32px;
+  text-align: left;
+  background: var(--panel-tint);
+  box-shadow:
+    0 30px 80px -24px var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px var(--edge),
+    inset 0 0 40px rgba(255, 255, 255, 0.04);
+}
+
+.panel > * {
+  position: relative;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+.group {
+  margin: 0 0 18px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.group:last-child {
+  margin-bottom: 0;
+}
+
+.group legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.group-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 32px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Native radios, visually replaced by the span that follows */
+.chip,
+.swatch {
+  position: relative;
+}
+
+.chip input,
+.swatch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.chip span,
+.chip-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--fg);
+  background: var(--chip-bg);
+  box-shadow:
+    inset 0 1px 0 var(--chip-highlight),
+    inset 0 0 0 1px var(--chip-edge),
+    0 6px 16px -8px var(--shadow);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, scale 0.3s var(--spring);
+}
+
+.chip span:hover,
+.chip-button:hover {
+  scale: 1.04;
+}
+
+.chip input:checked + span {
+  color: var(--chip-on-fg);
+  background: var(--chip-on-bg);
+}
+
+.chip input:focus-visible + span,
+.swatch input:focus-visible + span,
+.chip-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.shape-icon {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.shape-icon.squircle { border-radius: 30%; }
+.shape-icon.pill { width: 22px; border-radius: 999px; }
+
+/* Tint swatches: little glass tiles */
+.swatch span {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.7), transparent 45%),
+    var(--sw);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 8px 18px -8px var(--sw-glow, var(--shadow));
+  cursor: pointer;
+  transition: scale 0.3s var(--spring), box-shadow 0.2s ease;
+}
+
+.swatch span:hover { scale: 1.08; }
+
+.swatch input:checked + span {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--fg);
+}
+
+.sw-none   { --sw: linear-gradient(135deg, transparent 45%, #f43f5e 45%, #f43f5e 55%, transparent 55%), rgba(127, 127, 127, 0.18); }
+.sw-frost  { --sw: linear-gradient(135deg, #f8fafc, #cbd5e1); }
+.sw-aqua   { --sw: linear-gradient(135deg, #67e8f9, #0891b2); --sw-glow: #22d3ee; }
+.sw-violet { --sw: linear-gradient(135deg, #c4b5fd, #7c3aed); --sw-glow: #8b5cf6; }
+.sw-peach  { --sw: linear-gradient(135deg, #fdba74, #f43f5e); --sw-glow: #fb923c; }
+.sw-mint   { --sw: linear-gradient(135deg, #6ee7b7, #0d9488); --sw-glow: #34d399; }
+
+/* Sliders: glassy track with gradient fill */
+.sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px 24px;
+}
+
+.slider {
+  display: grid;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.slider span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.slider output {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.slider input {
+  --fill: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider input::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, var(--fill-a), var(--fill-b)) 0 0 / var(--fill) 100% no-repeat,
+    var(--track);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.slider input::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--track);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.slider input::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--fill-a), var(--fill-b));
+}
+
+.slider input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 18px;
+  margin-top: -5px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  transition: scale 0.3s var(--spring);
+}
+
+.slider input::-moz-range-thumb {
+  width: 26px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.slider input:active::-webkit-slider-thumb {
+  scale: 1.2;
+}
+
+.slider input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 999px;
 }
 
 .tagline {
@@ -88,6 +454,8 @@ body {
 }
 
 .footer {
+  position: relative;
+  z-index: 1;
   padding: 16px 24px;
   text-align: center;
 }
@@ -98,6 +466,10 @@ body {
   font-size: 0.8rem;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation: none; }
+}
+
 /* Light mode fallback for users who prefer it */
 @media (prefers-color-scheme: light) {
   :root {
@@ -105,6 +477,24 @@ body {
     --fg: #1a1a1a;
     --muted: #6b7280;
     --accent: #059669;
+    --grid: rgba(15, 23, 42, 0.08);
+    --blob-a: #6ee7b7;
+    --blob-b: #a5b4fc;
+    --title-a: #0891b2;
+    --title-b: #4f46e5;
+    --title-c: #db2777;
+    --tint: rgba(255, 255, 255, 0.15);
+    --edge: rgba(255, 255, 255, 0.7);
+    --shadow: rgba(15, 23, 42, 0.18);
+    --panel-tint: rgba(255, 255, 255, 0.4);
+    --chip-bg: rgba(255, 255, 255, 0.6);
+    --chip-edge: rgba(15, 23, 42, 0.06);
+    --chip-highlight: rgba(255, 255, 255, 0.95);
+    --chip-on-bg: #111827;
+    --chip-on-fg: #ffffff;
+    --track: rgba(15, 23, 42, 0.1);
+    --fill-a: #22d3ee;
+    --fill-b: #8b5cf6;
   }
   .links a {
     border-color: #e5e7eb;

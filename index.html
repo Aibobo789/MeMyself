@@ -9,11 +9,89 @@
 </head>
 <body>
 
+  <!-- Detail behind the glass: refraction needs something to bend -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="blob a"></div>
+    <div class="blob b"></div>
+    <div class="grid"></div>
+  </div>
+
   <main class="wrap">
-    <header class="hero">
+    <header class="hero" id="hero">
       <h1 class="name">Boru Ai</h1>
       <!-- <p class="tagline">Always Exploring</p> -->
+      <div class="glass lens" id="lens" aria-hidden="true"
+           data-glass='{"surface":"circle","bezelRatio":0.28,"thicknessRatio":0.4,"saturation":1.6}'></div>
     </header>
+
+    <!-- Glass customisation panel: drives the lens above -->
+    <form class="glass panel" id="glass-panel" aria-labelledby="panel-title"
+          data-glass='{"surface":"squircle","bezel":26,"thickness":36,"frost":16,"saturation":1.5}'>
+      <div class="panel-head">
+        <h2 id="panel-title">Liquid Glass</h2>
+        <button class="chip-button" type="reset">Reset</button>
+      </div>
+
+      <fieldset class="group">
+        <legend>Recipe</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="preset" value="clear"><span>Clear</span></label>
+          <label class="chip"><input type="radio" name="preset" value="frosted"><span>Frosted</span></label>
+          <label class="chip"><input type="radio" name="preset" value="crystal"><span>Crystal</span></label>
+          <label class="chip"><input type="radio" name="preset" value="candy"><span>Candy</span></label>
+        </div>
+      </fieldset>
+
+      <div class="group-row">
+        <fieldset class="group">
+          <legend>Radius style</legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="shape" value="circle"><span><i class="shape-icon circle"></i>Circle</span></label>
+            <label class="chip"><input type="radio" name="shape" value="squircle"><span><i class="shape-icon squircle"></i>Squircle</span></label>
+            <label class="chip"><input type="radio" name="shape" value="pill"><span><i class="shape-icon pill"></i>Pill</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend>Tint</legend>
+          <div class="chips">
+            <label class="swatch"><input type="radio" name="tint" value="none" aria-label="Clear"><span class="sw-none"></span></label>
+            <label class="swatch"><input type="radio" name="tint" value="frost" aria-label="Milky"><span class="sw-frost"></span></label>
+            <label class="swatch"><input type="radio" name="tint" value="aqua" aria-label="Aqua"><span class="sw-aqua"></span></label>
+            <label class="swatch"><input type="radio" name="tint" value="violet" aria-label="Violet"><span class="sw-violet"></span></label>
+            <label class="swatch"><input type="radio" name="tint" value="peach" aria-label="Peach"><span class="sw-peach"></span></label>
+            <label class="swatch"><input type="radio" name="tint" value="mint" aria-label="Mint"><span class="sw-mint"></span></label>
+          </div>
+        </fieldset>
+      </div>
+
+      <fieldset class="group">
+        <legend>Surface</legend>
+        <div class="sliders">
+          <label class="slider"><span>Size <output name="size-out"></output></span>
+            <input type="range" name="size" min="0.7" max="1.3" step="0.05"></label>
+          <label class="slider"><span>Glass blur <output name="frost-out"></output></span>
+            <input type="range" name="frost" min="0" max="24" step="1"></label>
+          <label class="slider"><span>Refraction <output name="refraction-out"></output></span>
+            <input type="range" name="refraction" min="0" max="0.8" step="0.01"></label>
+          <label class="slider"><span>Rim width <output name="bezel-out"></output></span>
+            <input type="range" name="bezel" min="0.1" max="0.5" step="0.01"></label>
+          <label class="slider"><span>Highlight <output name="highlight-out"></output></span>
+            <input type="range" name="highlight" min="0" max="1" step="0.05"></label>
+          <label class="slider"><span>Vibrancy <output name="vibrancy-out"></output></span>
+            <input type="range" name="vibrancy" min="1" max="2.2" step="0.1"></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Shadow</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="shadow" value="none"><span>None</span></label>
+          <label class="chip"><input type="radio" name="shadow" value="soft"><span>Soft</span></label>
+          <label class="chip"><input type="radio" name="shadow" value="glow"><span>Glow</span></label>
+        </div>
+      </fieldset>
+    </form>
 
     <!-- <nav class="links" aria-label="Social and contact links">
       <a href="https://github.com/Aibobo789" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -22,12 +100,11 @@
     </nav> -->
   </main>
 
-  <footer class="footer">
+  <!-- <footer class="footer">
     <p>&copy; <span id="year"></span> 艾</p>
-  </footer>
+  </footer> -->
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script src="glass.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
