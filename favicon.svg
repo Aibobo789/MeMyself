@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="blob-a" cx="12" cy="12" r="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blob-b" cx="54" cy="54" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blob-c" cx="57" cy="7" r="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ec4899" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#ec4899" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".7"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".4"/>
+    </linearGradient>
+    <linearGradient id="pane" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".06"/>
+    </linearGradient>
+    <!-- B and A drawn as paths so the mark doesn't depend on installed fonts -->
+    <path id="ba" fill-rule="evenodd" d="
+      M13 20 H23.5 C27 20 29 22.2 29 25.4 C29 27.8 27.8 29.5 25.8 31.2 C28.6 32.4 30.2 34.6 30.2 37.6 C30.2 41.6 27.6 44 23.2 44 H13 Z
+      M18.8 24.6 H22.6 C23.8 24.6 24.6 25.4 24.6 26.6 C24.6 27.8 23.8 28.8 22.6 28.8 H18.8 Z
+      M18.8 33.4 H23 C24.6 33.4 25.4 34.4 25.4 36.4 C25.4 38.4 24.6 39.4 23 39.4 H18.8 Z
+      M38.8 20 H46.2 L52.6 44 H46.6 L45.4 39.4 H39.6 L38.4 44 H32.4 Z
+      M40.9 34.6 H44.1 L42.5 28.6 Z"/>
+  </defs>
+
+  <!-- Backdrop: dark tile with the site's colour blobs for the glass to sit on -->
+  <rect width="64" height="64" rx="14" fill="#0b0d12"/>
+  <rect width="64" height="64" rx="14" fill="url(#blob-a)"/>
+  <rect width="64" height="64" rx="14" fill="url(#blob-b)"/>
+  <rect width="64" height="64" rx="14" fill="url(#blob-c)"/>
+
+  <!-- Glass pane with specular rim and top highlight -->
+  <rect x="6" y="6" width="52" height="52" rx="15" fill="url(#pane)" stroke="url(#rim)" stroke-width="1.5"/>
+  <path d="M19 10.5 Q32 8.6 45 10.5" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round"/>
+
+  <!-- Letters, with a soft offset shadow for depth -->
+  <g transform="translate(-0.8 0)">
+    <use href="#ba" y="1.2" fill="#000" fill-opacity=".28"/>
+    <use href="#ba" fill="#fff"/>
+  </g>
+</svg>
